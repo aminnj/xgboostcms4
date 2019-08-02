@@ -69,10 +69,11 @@ def json_to_cfunc(fname_in,fname_out=None):
         trees = data["trees"]
         feature_names = data["features"]
         class_labels = data["labels"]
+    ifeat_to_name = {"f{}".format(i):name for i,name in enumerate(feature_names)}
     def get_leaf(entry, depth=0):
         if "leaf" in entry: 
             return entry["leaf"]
-        splitvar = entry["split"]
+        splitvar = ifeat_to_name[entry["split"]]
         splitval = entry["split_condition"]
         yesnode = [c for c in entry["children"] if c["nodeid"] == entry["yes"]][0]
         nonode = [c for c in entry["children"] if c["nodeid"] == entry["no"]][0]
