@@ -1,38 +1,24 @@
 import os
 import sys
+import pickle
 
 import numpy as np
+import uproot
+from tqdm import tqdm
+import xgboost as xgb
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_curve, roc_auc_score
 
-from tqdm import tqdm
-
-import xgboost as xgb
 from utils import write_json, json_to_cfunc
-
-import pickle
-
-# import sys
-# sys.path.insert(0,'/home/users/namin/.local/lib/python2.7/site-packages/')
-import uproot
 
 def load_data(fname,feature_names):
     f = uproot.open(fname)
     t = f["t"]
     arrs = t.arrays(t.keys())
-
     y_data = (arrs["truth"] > 0)
     x_data = np.column_stack([arrs[name] for name in feature_names])
-
-    x_train, x_test, \
-            y_train, y_test, \
-            = train_test_split(
-                    x_data,
-                    y_data,
-                    test_size=0.25, random_state=42,
-                    )
-
+    x_train, x_test, y_train, y_test = train_test_split(x_data, y_data, test_size=0.25, random_state=42)
     return x_train,x_test,y_train,y_test
 
 feature_names = [
@@ -78,15 +64,10 @@ else:
     print "[!] Found pickle file...loading"
     bst = pickle.load(open(pklname,"rb"))
 
-
 y_pred_train = bst.predict(dtrain)
 y_pred_test = bst.predict(dtest)
 
-
-
 # PLOTTING
-
-
 
 import matplotlib as mpl
 mpl.use('Agg')
@@ -105,7 +86,6 @@ from scipy import stats
 pks_bkg = stats.ks_2samp(preds_bkg_train,preds_bkg_test)[1]
 pks_sig = stats.ks_2samp(preds_sig_train,preds_sig_test)[1]
 
-
 counts_train_bkg,_,_ = ax.hist(preds_bkg_train, bins=bins,histtype="stepfilled",alpha=0.45, normed=density, label="bkg, train",color=["b"])
 counts_train_sig,_,_ = ax.hist(preds_sig_train, bins=bins,histtype="stepfilled",alpha=0.45, normed=density, label="sig, train",color=["r"])
 counts_test_bkg,_,_ = ax.hist(preds_bkg_test, bins=bins,histtype="step",alpha=1.0, normed=density, label="bkg, test (KS prob = {:.2f})".format(pks_bkg),color=["b"], lw=1.5, linestyle="solid")
@@ -118,7 +98,6 @@ ax.set_ylim([0.01,ax.get_ylim()[1]])
 fig.set_tight_layout(True)
 fig.savefig("disc.pdf")
 os.system("which ic && ic disc.pdf")
-
 
 fpr_test,tpr_test,_ = roc_curve(y_test, y_pred_test)
 fpr_train,tpr_train,_ = roc_curve(y_train, y_pred_train)

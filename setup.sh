@@ -3,9 +3,6 @@ cmsenv
 cd -;
 export LANG=en_US.UTF-8
 
-[ -d myenv ] || virtualenv myenv
-source myenv/bin/activate
-
 [[ -d CORE ]] || {
     git clone git@github.com:cmstas/CORE.git
     cd CORE
@@ -13,4 +10,5 @@ source myenv/bin/activate
     cd -
 }
 
-# pip install --user uproot
+[ -d myenv ] || virtualenv myenv
+source myenv/bin/activate

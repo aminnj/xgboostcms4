@@ -5,8 +5,6 @@ import numpy as np
 def write_json(fname,bst,features, labels=[]):
     buff = "[\n"
     trees = bst.get_dump()
-    # for x in trees:
-    #     print x
     ntrees = len(trees)
     for itree,tree in enumerate(trees):
         prev_depth = 0
@@ -15,7 +13,6 @@ def write_json(fname,bst,features, labels=[]):
             depth = line.count("\t")
             nascending = prev_depth - depth
             (depth == prev_depth-1)
-            # print ascending, depth, prev_depth
             prev_depth = depth
             parts = line.strip().split()
             padding = "    "*depth
@@ -24,7 +21,6 @@ def write_json(fname,bst,features, labels=[]):
             if len(parts) == 1:  # leaf
                 nodeid = int(parts[0].split(":")[0])
                 leaf = float(parts[0].split("=")[-1])
-                # print "leaf: ",depth,nodeid,val
                 buff += """{padding}{{ "nodeid": {nodeid}, "leaf": {leaf} }},\n""".format(
                         padding=padding,
                         nodeid=nodeid,
@@ -58,7 +54,6 @@ def write_json(fname,bst,features, labels=[]):
         if itree != len(trees)-1:
             buff += ",\n"
     buff += "\n]"
-    # print buff
     to_dump = {
             "trees": list(ast.literal_eval(buff)),
             "features": features,
